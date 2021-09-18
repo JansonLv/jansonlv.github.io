@@ -1,11 +1,8 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><search><entry><title>K8s</title><url>/post/k8s/</url><categories><category>学习</category></categories><tags><tag>技术</tag><tag>容器</tag><tag>docker</tag><tag>k8s</tag></tags><content type="html"> 容器篇 **## **进程
-进程是分配资源的最小单元
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><search><entry><title>K8s学习笔记</title><url>/post/k8s/</url><categories><category>学习</category></categories><tags><tag>技术</tag><tag>容器</tag><tag>docker</tag><tag>k8s</tag></tags><content type="html"> 容器篇 进程 进程是分配资源的最小单元
 容器技术的核心功能，就是通过约束资源和修改进程的动态表现，从而为其创造出一个边界。
-Cgroups技术就是用来制造约束的主要手段** ****Namespace**技术则是用来修改进程视图的主要方法** ****rootfs**挂载在容器根目录上、用来为容器进程提供隔离后执行环境的文件系统
-K8S 篇 k8s：按照用户的意愿和整个系统的规则，完全自动化的处理好容器之间的各种关系。也就是****编排，本质就是为用户提供一个具有普遍意义的容器编排工具
-安装： 使用kind做k8s安装，也可以使用kubeadm** **docker内置安装https://codechina.csdn.net/mirrors/AliyunContainerService/k8s-for-docker-desktop/-/tree/v1.21.3
-个人推荐docker内置安装，避免翻墙
-简单使用（后期补充，都是新手教程） 元数据 发布一个应用 修改一个应用 挂载目录 进入容器 删除一个应用 执行一个job kubectl apply -f xxxxx （任务已存在不可重复执行，需要先delete） 强制重启kubectl replace –force -f xxxxx Pod Pod，其实是一组共享了某些资源的容器， pod里的所有容器，共享的是同一个 Network Namespace，并且可以声明共享同一个 Volume。
+Cgroups技术就是用来制造约束的主要手段 Namespace技术则是用来修改进程视图的主要方法 rootfs挂载在容器根目录上、用来为容器进程提供隔离后执行环境的文件系统
+K8S 篇 k8s：按照用户的意愿和整个系统的规则，完全自动化的处理好容器之间的各种关系。也就是编排，本质就是为用户提供一个具有普遍意义的容器编排工具
+安装： 使用kind做k8s安装，也可以使用kubeadm docker内置安装 简单使用（后期补充） 元数据 发布一个应用 修改一个应用 挂载目录 进入容器 删除一个应用 执行一个job kubectl apply -f xxxxx （任务已存在不可重复执行，需要先delete） 强制重启kubectl replace –force -f xxxxx Pod Pod，其实是一组共享了某些资源的容器， pod里的所有容器，共享的是同一个 Network Namespace，并且可以声明共享同一个 Volume。
 为什么需要pod pod和容器之间的关系 使用pod的优点 pod的基础使用 如何理解一切属性、namespace的操作都是pod级别的 相关操作 共享进程（pid namespace） Lifecycle 容器的hook pod对象在k8s中的声明周期 pod的状态
 pod 进阶操作 Volume 投射数据卷 用来为容器促提供预制好的数据的，比如配置等 常见的Projected Volume一共有四种
 Secret ConfigMap Downward API ServiceAccountToken 健康检查和恢复机制 PodPreset Pod预设值功能（很实用） 控制器模型 控制器定义 被控制对象 和实践驱动的区别和练习 副本和扩展 Deployment 控制器实际操纵的，正是这样的 ReplicaSet （副本集）对象，而不是 Pod 对象。
@@ -33,7 +30,7 @@ PVC 其实就是一种特殊的 Volume。只不过一个 PVC 具体是什么类�
 因为，几乎每一种 Kubernetes 的编排功能，都可以在编写 StatefulSet 的 YAML 文件时被用到。
 深入理解StatefulSet（三）：有状态应用实践 搭建一主多从的mysql服务
 容器化守护进程的意义：DaemonSet DaemonSet特征：
-每个节点****必有且只有一个这样的pod实例 当有新的节点加入集群，该pod就会自动的再新节点上被创建 使用场景：
+每个节点必有且只有一个这样的pod实例 当有新的节点加入集群，该pod就会自动的再新节点上被创建 使用场景：
 日志上报 节点监控 k8s网络基础服务 每个节点上有且只有一个 Pod的保证基础： nodeAffinity Toleration
 撬动离线业务：Job与CronJob 重启策略：restartPolicy 重启次数：backoffLimit 运行最大时间：activeDeadlineSeconds
 job controller并行作业 parallelism：定义一个job在任意时间最多可以启动多少个pod completions：定义的是job至少要完成的pod数量，即job最小完成数
@@ -76,7 +73,7 @@ IPVS 模式的工作原理，其实跟 iptables 模式类似。当我们创建�
 接下来，kube-proxy 就会通过 Linux 的 IPVS 模块，为这个 IP 地址设置三个 IPVS 虚拟主机，并设置这三个虚拟主机之间使用轮询模式 (rr) 来作为负载均衡策略。我们可以通过 ipvsadm 查看到这个设置。
 相比于 iptables，IPVS 在内核中的实现其实也是基于 Netfilter 的 NAT 模式，所以在转发这一层上，理论上 IPVS 并没有显著的性能提升。但是，IPVS 并不需要在宿主机上为每个 Pod 设置 iptables 规则，而是把对这些“规则”的处理放到了内核态，从而极大地降低了维护这些规则的代价。这也正印证了我在前面提到过的，“将重要操作放入内核态”是提高性能的重要手段。
 所以，在大规模集群里，我非常建议你为 kube-proxy 设置–proxy-mode=ipvs 来开启这个功能。它为 Kubernetes 集群规模带来的提升，还是非常巨大的。
-总结：** **ClusterIP 模式的 Service 为你提供的，就是一个 Pod 的稳定的 IP 地址，即 VIP。并且，这里 Pod 和 Service 的关系是可以通过 Label 确定的。
+总结： ClusterIP 模式的 Service 为你提供的，就是一个 Pod 的稳定的 IP 地址，即 VIP。并且，这里 Pod 和 Service 的关系是可以通过 Label 确定的。
 而 Headless Service 为你提供的，则是一个 Pod 的稳定的 DNS 名字，并且，这个名字是可以通过 Pod 名字和 Service 名字拼接出来的。
 从外界连通Service的方式” 如何从外部（Kubernetes 集群之外），访问到 Kubernetes 里创建的 Service？
 NodePort LoadBalancer ExternalName ingrss NodePort注意点：一台宿主机上的 iptables 规则，会设置为只将 IP 包转发给运行在这台宿主机上的 Pod。当然，这也就意味着如果在一台宿主机上，没有任何一个被代理的 Pod 存在，比如上图中的 node 2，那么你使用 node 2 的 IP 地址访问这个 Service，就是无效的。此时，你的请求会直接被 DROP 掉。
